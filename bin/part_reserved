@@ -1,0 +1,76 @@
+  ; Calculate corner points
+  sz1 = (size(SOMlat))[1]
+  sz2 = (size(SOMlat))[2]
+
+  ; 1.Latitude
+  lattemp = fltarr(sz1+2,sz2+2)
+  lattemp[0,0] = SOMlat[0,0]
+  lattemp[0,1:sz2] = SOMlat[0,*]
+  lattemp[0,sz2+1] = SOMlat[0,sz2-1]
+  lattemp[1:sz1,0] = SOMlat[*,0]
+  lattemp[1:sz1,1:sz2]= SOMlat[*,*]
+  lattemp[1:sz1,sz2+1] = SOMlat[*,sz2-1]
+  lattemp[sz1+1,0] = SOMlat[sz1-1,0]
+  lattemp[sz1+1,1:sz2] = SOMlat[sz1-1,*]
+  lattemp[sz1+1,sz2+1] = SOMlat[sz1-1,sz2-1]
+
+  tlat = fltarr(sz1+1,sz2+1,4)
+  tlat[*,*,0] = lattemp[0:sz1,0:sz2]
+;  tlat[*,*,1] = lattemp[1:sz1+1,0:sz2]
+  tlat[*,*,1] = lattemp[0:sz1,1:sz2+1]
+;  tlat[*,*,2] = lattemp[0:sz1,1:sz2+1]
+  tlat[*,*,2] = lattemp[1:sz1+1,0:sz2]
+  tlat[*,*,3] = lattemp[1:sz1+1,1:sz2+1]
+
+  tlat = reform(average(tlat,3))
+
+  latcorner = fltarr(sz1,sz2,4)
+  latcorner[*,*,0] = tlat[0:sz1-1,0:sz2-1]
+;  latcorner[*,*,1] = tlat[1:sz1,0:sz2-1]
+;  latcorner[*,*,2] = tlat[0:sz1-1,1:sz2]
+  latcorner[*,*,1] = tlat[0:sz1-1,1:sz2]
+  latcorner[*,*,2] = tlat[1:sz1,0:sz2-1]
+  latcorner[*,*,3] = tlat[1:sz1,1:sz2]
+
+
+  ; 2.Longtitude
+  lontemp = fltarr(sz1+2,sz2+2)
+  lontemp[0,0] = SOMlon[0,0]
+  lontemp[0,1:sz2] = SOMlon[0,*]
+  lontemp[0,sz2+1] = SOMlon[0,sz2-1]
+  lontemp[1:sz1,0] = SOMlon[*,0]
+  lontemp[1:sz1,1:sz2]= SOMlon[*,*]
+  lontemp[1:sz1,sz2+1] = SOMlon[*,sz2-1]
+  lontemp[sz1+1,0] = SOMlon[sz1-1,0]
+  lontemp[sz1+1,1:sz2] = SOMlon[sz1-1,*]
+  lontemp[sz1+1,sz2+1] = SOMlon[sz1-1,sz2-1]
+
+  tlon = fltarr(sz1+1,sz2+1,4)
+  tlon[*,*,0] = lontemp[0:sz1,0:sz2]
+;  tlon[*,*,1] = lontemp[1:sz1+1,0:sz2]
+;  tlon[*,*,2] = lontemp[0:sz1,1:sz2+1]
+  tlon[*,*,1] = lontemp[0:sz1,1:sz2+1]
+  tlon[*,*,2] = lontemp[1:sz1+1,0:sz2]
+  tlon[*,*,3] = lontemp[1:sz1+1,1:sz2+1]
+
+  for EW = -360,360,720 do begin
+    for WE = 1,3 do begin
+      temp = tlon[*,*,WE]
+      spot = where(abs(tlon[*,*,0] - temp + EW) lt abs(tlon[*,*,0] - temp))
+      if spot[0] ne -1 then begin
+        temp[spot] = temp[spot] - EW
+        tlon[*,*,WE] = temp
+      endif
+    endfor
+  endfor
+
+  tlon = reform(average(tlon,3))
+
+  loncorner = fltarr(sz1,sz2,4)
+  loncorner[*,*,0] = tlon[0:sz1-1,0:sz2-1]
+;  loncorner[*,*,1] = tlon[1:sz1,0:sz2-1]
+;  loncorner[*,*,2] = tlon[0:sz1-1,1:sz2]
+  loncorner[*,*,1] = tlon[0:sz1-1,1:sz2]
+  loncorner[*,*,2] = tlon[1:sz1,0:sz2-1]
+  loncorner[*,*,3] = tlon[1:sz1,1:sz2]
+
